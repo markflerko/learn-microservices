@@ -1,8 +1,32 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
+  "sourceRoot": "apps/mcrsers/src",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/mcrsers/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/mcrsers",
+  "projects": {
+    "mcrsers": {
+      "type": "application",
+      "root": "apps/mcrsers",
+      "entryFile": "main",
+      "sourceRoot": "apps/mcrsers/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/mcrsers/tsconfig.app.json"
+      }
+    },
+    "workflow-service": {
+      "type": "application",
+      "root": "apps/workflow-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/workflow-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/workflow-service/tsconfig.app.json"
+      }
+    }
   }
 }
