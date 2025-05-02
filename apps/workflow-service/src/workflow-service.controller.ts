@@ -3,7 +3,9 @@ import { WorkflowServiceService } from './workflow-service.service';
 
 @Controller()
 export class WorkflowServiceController {
-  constructor(private readonly workflowServiceService: WorkflowServiceService) {}
+  constructor(
+    private readonly workflowServiceService: WorkflowServiceService,
+  ) {}
 
   @Get()
   getHello(): string {

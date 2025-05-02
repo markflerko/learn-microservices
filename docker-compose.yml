@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+  workflow-service:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - APP_NAME=workflow-service
+    command: npm run start:dev -- workflow-service
+    environment:
+      - POSTGRES_HOST=workflow-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=workflow
+    volumes:
+      - ./libs:/usr/src/app/libs
+      - ./package.json:/usr/src/app/package.json
+      - ./tsconfig.json:/usr/src/app/tsconfig.json
+      - ./apps/workflow-service:/usr/src/app/apps/workflow-service
+    depends_on:
+      - workflow-db
+
+  workflow-db:
+    image: postgres:13.2-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=workflow
+
+  mcrsers:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - APP_NAME=mcrsers
+    command: npm run start:dev -- mcrsers
+    ports:
+      - 3000:3000
+    environment:
+      - POSTGRES_HOST=mcrsers-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=mcrsers
+    volumes:
+      - ./libs:/usr/src/app/libs
+      - ./package.json:/usr/src/app/package.json
+      - ./tsconfig.json:/usr/src/app/tsconfig.json
+      - ./apps/mcrsers:/usr/src/app/apps/mcrsers
+    depends_on:
+      - mcrsers-db
+      - workflow-service
+
+  mcrsers-db:
+    image: postgres:13.2-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=mcrsers
