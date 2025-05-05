@@ -1,35 +1,78 @@
-import { Injectable } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { CreateWorkflowDto } from '@app/workflows';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Building } from 'apps/mcrsers/src/buildings/entities/building.entity';
+import { Repository } from 'typeorm';
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { UpdateBuildingDto } from './dto/update-building.dto';
 
 @Injectable()
 export class BuildingsService {
-  async create(createBuildingDto: CreateBuildingDto) {
-    await this.createWorkflow(1);
-    return 'This action adds a new building 1';
+  constructor(
+    @InjectRepository(Building)
+    private buildingsRepository: Repository<Building>,
+  ) {}
+
+  findAll(): Promise<Building[]> {
+    return this.buildingsRepository.find();
   }
 
-  findAll() {
-    return `This action returns all buildings`;
+  findOne(id: number): Promise<Building | null> {
+    return this.buildingsRepository.findOneBy({ id });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} building`;
+  async create(createBuildingDto: CreateBuildingDto): Promise<Building> {
+    const building = this.buildingsRepository.create({
+      ...createBuildingDto,
+    });
+
+    const newBuildingEntity = await this.buildingsRepository.save(building);
+
+    // Create a workflow for the new building
+    await this.createWorkflow(newBuildingEntity.id);
+
+    return newBuildingEntity;
   }
 
-  update(id: number, updateBuildingDto: UpdateBuildingDto) {
-    return `This action updates a #${id} building`;
+  async update(
+    id: number,
+    updateBuildingDto: UpdateBuildingDto,
+  ): Promise<Building> {
+    const building = await this.buildingsRepository.preload({
+      id: +id,
+      ...updateBuildingDto,
+    });
+
+    if (!building) {
+      throw new NotFoundException(`Building #${id} does not exist`);
+    }
+
+    return this.buildingsRepository.save(building);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} building`;
+  async remove(id: number): Promise<Building> {
+    const building = await this.findOne(id);
+    if (building) {
+      return this.buildingsRepository.remove(building);
+    }
+    throw new NotFoundException(`Building #${id} does not exist`);
   }
 
   async createWorkflow(buildingId: number) {
-    return fetch('http://workflow-service:3001/workflows', {
+    console.log(
+      JSON.stringify({ name: 'My Workflow', buildingId } as CreateWorkflowDto),
+    );
+
+    const response = await fetch('http://workflow-service:3001/workflows', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: 'My Workflow', buildingId }),
-    }).then((res) => res.text());
+    });
+
+    const newWorkflow = await response.json();
+    console.log({ newWorkflow });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return newWorkflow;
   }
 }
