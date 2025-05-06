@@ -14,6 +14,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=workflow
+      - NATS_URL=nats://nats:4222
     volumes:
       - ./libs:/usr/src/app/libs
       - ./package.json:/usr/src/app/package.json
@@ -21,6 +22,7 @@ services:
       - ./apps/workflow-service:/usr/src/app/apps/workflow-service
     depends_on:
       - workflow-db
+      - nats
 
   workflow-db:
     image: postgres:13.2-alpine
@@ -44,6 +46,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=mcrsers
+      - NATS_URL=nats://nats:4222
     volumes:
       - ./libs:/usr/src/app/libs
       - ./package.json:/usr/src/app/package.json
@@ -52,6 +55,7 @@ services:
     depends_on:
       - mcrsers-db
       - workflow-service
+      - nats
 
   mcrsers-db:
     image: postgres:13.2-alpine
@@ -59,3 +63,5 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=mcrsers
+  nats:
+    image: nats:2.2.2-alpine
