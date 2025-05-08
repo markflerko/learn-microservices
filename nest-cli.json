@@ -10,6 +10,15 @@
   "monorepo": true,
   "root": "apps/mcrsers",
   "projects": {
+    "alarms-classifier-service": {
+      "type": "application",
+      "root": "apps/alarms-classifier-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/alarms-classifier-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/alarms-classifier-service/tsconfig.app.json"
+      }
+    },
     "alarms-generator": {
       "type": "application",
       "root": "apps/alarms-generator",
@@ -35,6 +44,15 @@
       "sourceRoot": "apps/mcrsers/src",
       "compilerOptions": {
         "tsConfigPath": "apps/mcrsers/tsconfig.app.json"
+      }
+    },
+    "notification-service": {
+      "type": "application",
+      "root": "apps/notification-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/notification-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/notification-service/tsconfig.app.json"
       }
     },
     "workflow-service": {
