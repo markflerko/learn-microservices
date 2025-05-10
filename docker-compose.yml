@@ -14,7 +14,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=workflow
-      - NATS_URL=nats://nats:4222
+      - RABBITMQ_URL=amqp://rabbitmq:5672
     deploy:
       replicas: 3
     volumes:
@@ -24,7 +24,7 @@ services:
       - ./apps/workflow-service:/usr/src/app/apps/workflow-service
     depends_on:
       - workflow-db
-      - nats
+      - rabbitmq
 
   workflow-db:
     image: postgres:13.2-alpine
@@ -48,7 +48,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=mcrsers
-      - NATS_URL=nats://nats:4222
+      - RABBITMQ_URL=amqp://rabbitmq:5672
     volumes:
       - ./libs:/usr/src/app/libs
       - ./package.json:/usr/src/app/package.json
@@ -57,7 +57,7 @@ services:
     depends_on:
       - mcrsers-db
       - workflow-service
-      - nats
+      - rabbitmq
 
   mcrsers-db:
     image: postgres:13.2-alpine
@@ -135,3 +135,5 @@ services:
       - ./apps/alarms-classifier-service:/usr/src/app/apps/alarms-classifier-service
     depends_on:
       - nats
+  rabbitmq:
+    image: rabbitmq:3-management
