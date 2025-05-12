@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { Interval } from '@nestjs/schedule';
 import { ALARMS_SERVICE } from 'apps/alarms-generator/src/constants';
 
 @Injectable()
@@ -9,7 +10,7 @@ export class AlarmsGeneratorService {
     private readonly alarmsService: ClientProxy,
   ) {}
 
-  // @Interval(10000)
+  @Interval(10000)
   generateAlarm() {
     const alarmCreatedEvent = {
       name: 'Alarm #' + Math.floor(Math.random() * 1000) + 1,

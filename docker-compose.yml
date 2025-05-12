@@ -94,6 +94,7 @@ services:
     command: npm run start:dev -- alarms-service
     environment:
       - NATS_URL=nats://nats:4222
+      - RABBITMQ_URL=amqp://rabbitmq:5672
     volumes:
       - ./libs:/usr/src/app/libs
       - ./package.json:/usr/src/app/package.json
@@ -101,6 +102,7 @@ services:
       - ./apps/alarms-service:/usr/src/app/apps/alarms-service
     depends_on:
       - nats
+      - rabbitmq
   
   notification-service:
     build:
@@ -110,14 +112,14 @@ services:
         - APP_NAME=notification-service
     command: npm run start:dev -- notification-service
     environment:
-      - NATS_URL=nats://nats:4222
+      - RABBITMQ_URL=amqp://rabbitmq:5672
     volumes:
       - ./libs:/usr/src/app/libs
       - ./package.json:/usr/src/app/package.json
       - ./tsconfig.json:/usr/src/app/tsconfig.json
       - ./apps/notification-service:/usr/src/app/apps/notification-service
     depends_on:
-      - nats
+      - rabbitmq
   
   alarms-classifier-service:
     build:
