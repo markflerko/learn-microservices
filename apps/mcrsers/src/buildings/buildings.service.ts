@@ -5,8 +5,9 @@ import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Building } from 'apps/mcrsers/src/buildings/entities/building.entity';
 import { WORKFLOWS_SERVICE } from 'apps/mcrsers/src/constants';
+import { Outbox } from 'apps/mcrsers/src/outbox/entities/outbox.entity';
 import { lastValueFrom } from 'rxjs';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { UpdateBuildingDto } from './dto/update-building.dto';
 
@@ -17,6 +18,7 @@ export class BuildingsService {
     private buildingsRepository: Repository<Building>,
     @Inject(WORKFLOWS_SERVICE)
     private readonly workflowsService: ClientProxy,
+    private readonly dataSource: DataSource,
   ) {}
 
   findAll(): Promise<Building[]> {
@@ -28,16 +30,37 @@ export class BuildingsService {
   }
 
   async create(createBuildingDto: CreateBuildingDto): Promise<Building> {
-    const building = this.buildingsRepository.create({
-      ...createBuildingDto,
-    });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    const newBuildingEntity = await this.buildingsRepository.save(building);
+    const buildingsRepository = queryRunner.manager.getRepository(Building);
+    const outboxRepository = queryRunner.manager.getRepository(Outbox);
 
-    // Create a workflow for the new building
-    await this.createWorkflow(newBuildingEntity.id);
+    try {
+      const building = buildingsRepository.create({
+        ...createBuildingDto,
+      });
 
-    return newBuildingEntity;
+      const newBuildingEntity = await buildingsRepository.save(building);
+
+      await outboxRepository.save({
+        type: 'workflows.create',
+        payload: {
+          name: 'My workflow',
+          buildingId: building.id,
+        },
+        target: WORKFLOWS_SERVICE.description,
+      });
+      await queryRunner.commitTransaction();
+
+      return newBuildingEntity;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async update(
