@@ -1,13 +1,13 @@
 import { CreateWorkflowDto, UpdateWorkflowDto } from '@app/workflows';
 import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, Payload } from '@nestjs/microservices';
 import { WorkflowsService } from './workflows.service';
 
 @Controller('workflows')
 export class WorkflowsController {
   constructor(private readonly workflowsService: WorkflowsService) {}
 
-  @MessagePattern('workflows.create')
+  @EventPattern('workflows.create')
   create(@Payload() createWorkflowDto: CreateWorkflowDto) {
     return this.workflowsService.create(createWorkflowDto);
   }

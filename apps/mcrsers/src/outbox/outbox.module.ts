@@ -15,7 +15,7 @@ import { OutboxService } from './outbox.service';
         transport: Transport.RMQ,
         options: {
           urls: [process.env.RABBITMQ_URL as string],
-          queue: 'workflows-service',
+          queue: 'workflow-service',
         },
       },
     ]),

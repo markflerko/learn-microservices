@@ -42,13 +42,17 @@ export class BuildingsService {
         ...createBuildingDto,
       });
 
+      console.log(`building.id: ${building.id}`);
+
       const newBuildingEntity = await buildingsRepository.save(building);
+
+      console.log(`newBuildingEntity.id: ${newBuildingEntity.id}`);
 
       await outboxRepository.save({
         type: 'workflows.create',
         payload: {
           name: 'My workflow',
-          buildingId: building.id,
+          buildingId: newBuildingEntity.id, // Use the correct building ID
         },
         target: WORKFLOWS_SERVICE.description,
       });
