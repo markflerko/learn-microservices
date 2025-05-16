@@ -3,6 +3,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { WORKFLOWS_SERVICE } from 'apps/mcrsers/src/constants';
 import { Outbox } from 'apps/mcrsers/src/outbox/entities/outbox.entity';
+import { OutboxEntitySubscriber } from 'apps/mcrsers/src/outbox/outbox-entity.subscriber';
 import { OutboxProcessor } from 'apps/mcrsers/src/outbox/outbox.processor';
 import { OutboxService } from './outbox.service';
 
@@ -20,6 +21,6 @@ import { OutboxService } from './outbox.service';
       },
     ]),
   ],
-  providers: [OutboxService, OutboxProcessor],
+  providers: [OutboxService, OutboxProcessor, OutboxEntitySubscriber],
 })
 export class OutboxModule {}
